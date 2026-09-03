@@ -87,6 +87,22 @@ public class JsonDockRepositoryTest
     }
 
     [Fact]
+    public void FirstRunSeedsStartMenuModuleInsteadOfSettings()
+    {
+        string configPath = Path.Combine(_tempDir, "config.json");
+        var repository = new JsonDockRepository(configPath);
+
+        DockModel loadedModel = repository.Load();
+
+        Assert.True(repository.WasDefaultCreated);
+        Assert.Single(loadedModel.Items);
+        var startMenu = Assert.IsType<DockWindowsModuleItemModel>(loadedModel.Items[0]);
+        Assert.Equal("start", startMenu.Module);
+        Assert.DoesNotContain(loadedModel.Items, i => i is DockSettingsItemModel);
+        CleanupTempDir();
+    }
+
+    [Fact]
     public void LoadsExistingJavaConfigJsonWithoutDataLoss()
     {
         // Uses the real config.json from the original Java project root to prove

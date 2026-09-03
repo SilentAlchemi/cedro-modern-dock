@@ -59,6 +59,23 @@ public class DockItemActionServiceTest
     }
 
     [Fact]
+    public void ExecutesStartMenuModuleThroughWindowsModuleLauncher()
+    {
+        var capture = new InvocationCapture();
+        var service = new DockItemActionService(
+            LambdaProgramLauncher(capture),
+            LambdaFolderLauncher(capture),
+            LambdaWindowsModuleLauncher(capture)
+        );
+
+        service.Execute(new DockWindowsModuleItemModel("Start Menu", "start"), capture.OpenSettings);
+
+        Assert.Equal("module", capture.Kind);
+        Assert.Equal("start", capture.Value);
+        Assert.Equal("Start Menu", capture.Label);
+    }
+
+    [Fact]
     public void ExecutesSettingsItemsThroughSettingsAction()
     {
         var capture = new InvocationCapture();

@@ -11,7 +11,7 @@ public sealed record WindowsModuleEntry(string Name, Bitmap? Icon);
 /// <summary>ViewModel for the Add Windows Modules modal. Port of AddWindowsModulesModalController.</summary>
 public class AddWindowsModulesViewModel : ViewModelBase
 {
-    private static readonly string[] ModuleIds = { "mypc", "trash", "ctrlpnl", "pconfig" };
+    private static readonly string[] ModuleIds = { "start", "mypc", "trash", "ctrlpnl", "pconfig" };
 
     private readonly AppServices _appServices;
     private readonly Action _dockRefreshAction;
@@ -44,6 +44,7 @@ public class AddWindowsModulesViewModel : ViewModelBase
         string moduleId = ModuleIds[SelectedIndex];
         string defaultLabel = moduleId switch
         {
+            "start" => "Start Menu",
             "mypc" => "My Computer",
             "trash" => "Recycle Bin",
             "ctrlpnl" => "Control Panel",
@@ -63,6 +64,7 @@ public class AddWindowsModulesViewModel : ViewModelBase
         {
             string name = id switch
             {
+                "start" => loc.Text("windowsModule.startMenu"),
                 "mypc" => loc.Text("windowsModule.myComputer"),
                 "trash" => loc.Text("windowsModule.recycleBin"),
                 "ctrlpnl" => loc.Text("windowsModule.controlPanel"),
@@ -74,15 +76,5 @@ public class AddWindowsModulesViewModel : ViewModelBase
     }
 
     private static Bitmap? LoadModuleIcon(string moduleId)
-    {
-        string? iconPath = moduleId switch
-        {
-            "mypc" => "/com/github/arthurdeka/cedromoderndock/icons/my_computer.png",
-            "trash" => "/com/github/arthurdeka/cedromoderndock/icons/trash.png",
-            "ctrlpnl" => "/com/github/arthurdeka/cedromoderndock/icons/control.png",
-            "pconfig" => "/com/github/arthurdeka/cedromoderndock/icons/windows_settings.png",
-            _ => null
-        };
-        return IconLoader.LoadFromAsset(IconLoader.MapResourcePath(iconPath));
-    }
+        => IconLoader.LoadWindowsModuleIcon(moduleId);
 }

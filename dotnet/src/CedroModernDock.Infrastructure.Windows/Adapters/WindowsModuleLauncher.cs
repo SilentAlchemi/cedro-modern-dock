@@ -5,16 +5,30 @@ using CedroModernDock.Core.Domain;
 
 /// <summary>
 /// Direct port of DefaultWindowsModuleLauncher.java. Opens built-in Windows
-/// surfaces (This PC, Recycle Bin, Control Panel, Settings) via shell GUIDs/commands.
+/// surfaces (This PC, Recycle Bin, Control Panel, Settings, Start menu).
 /// </summary>
 public class WindowsModuleLauncher : IWindowsModuleLauncher
 {
+    private readonly IWindowsInputSender _inputSender;
+
+    public WindowsModuleLauncher(IWindowsInputSender? inputSender = null)
+    {
+        _inputSender = inputSender ?? new Win32WindowsInputSender();
+    }
+
     public void Launch(string module, string label)
     {
         try
         {
             switch (module)
             {
+                case "start":
+                    if (!_inputSender.SendWindowsKeyPress())
+                    {
+                        throw new InvalidOperationException(
+                            "Failed to send the Windows key for the Start menu.");
+                    }
+                    break;
                 case "mypc":
                     Process.Start(new ProcessStartInfo
                     {
@@ -49,7 +63,7 @@ public class WindowsModuleLauncher : IWindowsModuleLauncher
                     break;
             }
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not InvalidOperationException)
         {
             throw new InvalidOperationException($"Failed to launch Windows module '{module}'", e);
         }

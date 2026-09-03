@@ -59,6 +59,7 @@ public class LocalizationService
         {
             return windowsModuleItem.Module switch
             {
+                "start" => Text("windowsModule.startMenu"),
                 "mypc" => Text("windowsModule.myComputer"),
                 "trash" => Text("windowsModule.recycleBin"),
                 "ctrlpnl" => Text("windowsModule.controlPanel"),
