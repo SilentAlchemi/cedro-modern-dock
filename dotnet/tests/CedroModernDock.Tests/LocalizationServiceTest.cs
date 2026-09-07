@@ -60,14 +60,12 @@ public class LocalizationServiceTest
             string windowTitle = LocalizationService.BootstrapText(language, "settings.window.title");
             string moduleTitle = LocalizationService.BootstrapText(language, "windowsModule.modal.title");
             string startMenu = LocalizationService.BootstrapText(language, "windowsModule.startMenu");
-            string addSettings = LocalizationService.BootstrapText(language, "settings.icons.addSettings");
 
             Assert.False(string.IsNullOrWhiteSpace(windowTitle), $"Missing settings.window.title for {language}");
             Assert.False(string.IsNullOrWhiteSpace(moduleTitle), $"Missing windowsModule.modal.title for {language}");
             Assert.NotEqual("settings.window.title", windowTitle);
             Assert.NotEqual("windowsModule.modal.title", moduleTitle);
             Assert.NotEqual("windowsModule.startMenu", startMenu);
-            Assert.NotEqual("settings.icons.addSettings", addSettings);
         }
     }
 

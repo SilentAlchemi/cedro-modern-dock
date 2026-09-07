@@ -79,7 +79,6 @@ public partial class SettingsWindow : Window
     }
 
     private void OnRemove(object? sender, RoutedEventArgs e) => Vm?.RemoveSelected();
-    private void OnAddSettings(object? sender, RoutedEventArgs e) => Vm?.AddSettings();
     private void OnMoveUp(object? sender, RoutedEventArgs e) => Vm?.MoveItemUp();
     private void OnMoveDown(object? sender, RoutedEventArgs e) => Vm?.MoveItemDown();
 

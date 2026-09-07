@@ -166,7 +166,6 @@
                             <Button Content="{Binding AddProgramText}" Click="OnAddProgram" Background="#007ACC" Foreground="White" BorderBrush="Transparent" Padding="12,6" HorizontalAlignment="Left"/>
                             <Button Content="{Binding AddFolderText}" Click="OnAddFolder" Background="#007ACC" Foreground="White" BorderBrush="Transparent" Padding="12,6" HorizontalAlignment="Left"/>
                             <Button Content="{Binding AddModuleText}" Click="OnAddModule" Background="#007ACC" Foreground="White" BorderBrush="Transparent" Padding="12,6" HorizontalAlignment="Left"/>
-                            <Button Content="{Binding AddSettingsText}" Click="OnAddSettings" IsEnabled="{Binding CanAddSettings}" Background="#007ACC" Foreground="White" BorderBrush="Transparent" Padding="12,6" HorizontalAlignment="Left"/>
                             <Button Content="{Binding RemoveText}" Click="OnRemove" IsEnabled="{Binding CanRemove}" Background="#D33" Foreground="White" BorderBrush="Transparent" Padding="12,6" HorizontalAlignment="Left"/>
                             <Button Content="{Binding MoveUpText}" Click="OnMoveUp" IsEnabled="{Binding CanMoveUp}" Background="#444" Foreground="White" BorderBrush="Transparent" Padding="12,6" HorizontalAlignment="Left"/>
                             <Button Content="{Binding MoveDownText}" Click="OnMoveDown" IsEnabled="{Binding CanMoveDown}" Background="#444" Foreground="White" BorderBrush="Transparent" Padding="12,6" HorizontalAlignment="Left"/>

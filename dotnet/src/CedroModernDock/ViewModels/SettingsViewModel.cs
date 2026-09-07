@@ -143,7 +143,6 @@ public partial class SettingsViewModel : ViewModelBase
 
     // Button enabled states
     public bool CanRemove { get; private set; }
-    public bool CanAddSettings { get; private set; }
     public bool CanMoveUp { get; private set; }
     public bool CanMoveDown { get; private set; }
 
@@ -177,7 +176,6 @@ public partial class SettingsViewModel : ViewModelBase
     public string AddProgramText => T("settings.icons.addProgram");
     public string AddFolderText => T("settings.icons.addFolder");
     public string AddModuleText => T("settings.icons.addWindowsModule");
-    public string AddSettingsText => T("settings.icons.addSettings");
     public string RemoveText => T("settings.icons.removeSelected");
     public string IconSizeTitle => T("settings.iconsCustomization.size.title");
     public string IconSizeHelper => T("settings.iconsCustomization.size.helper");
@@ -395,16 +393,6 @@ public partial class SettingsViewModel : ViewModelBase
         _dockRefreshAction();
     }
 
-    public void AddSettings()
-    {
-        if (_appServices.DockService.GetItems().Any(i => i is DockSettingsItemModel))
-            return;
-
-        _appServices.DockService.AddItem(new DockSettingsItemModel());
-        RefreshItemLabels();
-        _dockRefreshAction();
-    }
-
     public void RemoveSelected()
     {
         if (SelectedItemIndex < 0) return;
@@ -497,12 +485,11 @@ public partial class SettingsViewModel : ViewModelBase
     private void UpdateButtonStates()
     {
         var items = _appServices.DockService.GetItems();
-        CanRemove = SelectedItemIndex >= 0 && SelectedItemIndex < items.Count;
-        CanAddSettings = items.All(i => i is not DockSettingsItemModel);
+        CanRemove = SelectedItemIndex >= 0 && SelectedItemIndex < items.Count
+            && items[SelectedItemIndex] is not DockSettingsItemModel;
         CanMoveUp = SelectedItemIndex > 0;
         CanMoveDown = SelectedItemIndex >= 0 && SelectedItemIndex < ItemEntries.Count - 1;
         OnPropertyChanged(nameof(CanRemove));
-        OnPropertyChanged(nameof(CanAddSettings));
         OnPropertyChanged(nameof(CanMoveUp));
         OnPropertyChanged(nameof(CanMoveDown));
     }

@@ -93,8 +93,7 @@ public class DockModel
 
     public void RemoveItem(int index) => Items.RemoveAt(index);
 
-    public void LoadDefaultItems() =>
-        Items.Add(new DockWindowsModuleItemModel("Start Menu", "start"));
+    public void LoadDefaultItems() => Items.Add(new DockSettingsItemModel());
 
     public void SwapItems(int firstItemIdx, int secondItemIdx)
     {
