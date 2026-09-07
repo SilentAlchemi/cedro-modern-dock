@@ -48,6 +48,21 @@ public static class IconLoader
         }
     }
 
+    /// <summary>Loads the bundled icon for a built-in Windows module.</summary>
+    public static Bitmap? LoadWindowsModuleIcon(string moduleId)
+    {
+        string? resourcePath = moduleId switch
+        {
+            "start" => "/com/github/arthurdeka/cedromoderndock/icons/start_menu.png",
+            "mypc" => "/com/github/arthurdeka/cedromoderndock/icons/my_computer.png",
+            "trash" => "/com/github/arthurdeka/cedromoderndock/icons/trash.png",
+            "ctrlpnl" => "/com/github/arthurdeka/cedromoderndock/icons/control.png",
+            "pconfig" => "/com/github/arthurdeka/cedromoderndock/icons/windows_settings.png",
+            _ => null
+        };
+        return LoadFromAsset(MapResourcePath(resourcePath));
+    }
+
     /// <summary>
     /// Maps a Java-style resource path (e.g. "/com/github/.../icons/settings.png")
     /// to the Avalonia asset path ("Assets/icons/settings.png").

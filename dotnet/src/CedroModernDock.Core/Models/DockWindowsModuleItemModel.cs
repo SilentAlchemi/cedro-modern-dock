@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 /// <summary>
 /// Direct port of DockWindowsModuleItemModel. The "module" field identifies
-/// which built-in Windows surface this item opens (mypc, trash, ctrlpnl, pconfig).
+/// which built-in Windows surface this item opens (start, mypc, trash, ctrlpnl, pconfig).
 /// The icon path is derived from the module in the constructor.
 /// </summary>
 public class DockWindowsModuleItemModel : DockItem
@@ -23,6 +23,7 @@ public class DockWindowsModuleItemModel : DockItem
     {
         Path = module switch
         {
+            "start" => "/com/github/arthurdeka/cedromoderndock/icons/start_menu.png",
             "mypc" => "/com/github/arthurdeka/cedromoderndock/icons/my_computer.png",
             "trash" => "/com/github/arthurdeka/cedromoderndock/icons/trash.png",
             "ctrlpnl" => "/com/github/arthurdeka/cedromoderndock/icons/control.png",

@@ -163,9 +163,9 @@ public partial class MainWindowViewModel : ViewModelBase
             return new DockItemViewModel(item, label, LaunchCommand) { Icon = IconTinter.Apply(icon) };
         }
 
-        if (item is DockWindowsModuleItemModel)
+        if (item is DockWindowsModuleItemModel moduleItem)
         {
-            var icon = IconLoader.LoadFromAsset(IconLoader.MapResourcePath(item.Path));
+            var icon = IconLoader.LoadWindowsModuleIcon(moduleItem.Module);
             return new DockItemViewModel(item, label, LaunchCommand) { Icon = IconTinter.Apply(icon) };
         }
 

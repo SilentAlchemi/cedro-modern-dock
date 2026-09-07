@@ -456,10 +456,16 @@ public partial class SettingsViewModel : ViewModelBase
 
     private Bitmap? ResolveItemIcon(DockItem item)
     {
-        if (item is DockSettingsItemModel or DockWindowsModuleItemModel)
+        if (item is DockSettingsItemModel)
         {
             var icon = IconLoader.LoadFromAsset(IconLoader.MapResourcePath(item.Path));
             return icon ?? IconLoader.LoadFromAsset("Assets/icons/folder.png");
+        }
+
+        if (item is DockWindowsModuleItemModel moduleItem)
+        {
+            return IconLoader.LoadWindowsModuleIcon(moduleItem.Module)
+                ?? IconLoader.LoadFromAsset("Assets/icons/folder.png");
         }
 
         if (item is DockProgramItemModel programItem)
