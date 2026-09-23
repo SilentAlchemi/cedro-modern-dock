@@ -76,6 +76,14 @@ public class DockAppearanceService
         _dockService.SaveChanges();
     }
 
+    public bool GetAutoHide() => GetDock().AutoHide;
+
+    public void SetAutoHide(bool value)
+    {
+        GetDock().AutoHide = value;
+        _dockService.SaveChanges();
+    }
+
     public bool GetTintIcons() => GetDock().TintIcons;
 
     public void SetTintIcons(bool value)

@@ -83,6 +83,9 @@ public class DockModel
     [JsonPropertyName("verticalDock")]
     public bool VerticalDock { get; set; }
 
+    [JsonPropertyName("autoHide")]
+    public bool AutoHide { get; set; }
+
     [JsonPropertyName("tintIcons")]
     public bool TintIcons { get; set; }
 

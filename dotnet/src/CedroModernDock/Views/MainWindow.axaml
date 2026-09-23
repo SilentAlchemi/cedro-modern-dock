@@ -15,7 +15,9 @@
         TransparencyLevelHint="Transparent"
         Background="Transparent"
         SizeToContent="WidthAndHeight"
-        PointerPressed="OnPointerPressed">
+        PointerPressed="OnPointerPressed"
+        PointerEntered="OnDockPointerEntered"
+        PointerExited="OnDockPointerExited">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>

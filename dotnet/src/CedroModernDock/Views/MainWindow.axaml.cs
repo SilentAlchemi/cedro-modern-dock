@@ -32,6 +32,16 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _previewHideDebounce = new() { Interval = TimeSpan.FromMilliseconds(80) };
     private readonly DispatcherTimer _previewCloseRefresh = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private readonly DispatcherTimer _positionPersistTimer = new() { Interval = TimeSpan.FromMilliseconds(200) };
+    private readonly DispatcherTimer _autoHideDelay = new() { Interval = TimeSpan.FromMilliseconds(1) };
+    private readonly DispatcherTimer _autoHideAnimation = new() { Interval = TimeSpan.FromMilliseconds(16) };
+    private PixelPoint _shownPosition;
+    private PixelPoint _animationStart;
+    private PixelPoint _animationTarget;
+    private DateTime _animationStarted;
+    private bool _isAutoHidden;
+    private bool _isAnimatingAutoHide;
+    private const int AutoHideRevealPixels = 4;
+    private const double AutoHideAnimationMilliseconds = 180;
 
     public MainWindow()
     {
@@ -42,6 +52,13 @@ public partial class MainWindow : Window
             _positionPersistTimer.Stop();
             PersistDockPosition();
         };
+        _autoHideDelay.Tick += (_, _) =>
+        {
+            _autoHideDelay.Stop();
+            if (_appServices?.AppearanceService.GetAutoHide() == true && !IsPointerOverPreview())
+                HideDock();
+        };
+        _autoHideAnimation.Tick += (_, _) => AnimateAutoHide();
         // The popup hides only when the pointer is neither over the popup nor
         // over a native thumbnail window (thumbnails are separate top-level
         // windows, so leaving the popup onto a thumbnail fires PointerExited).
@@ -101,6 +118,7 @@ public partial class MainWindow : Window
         }
 
         ApplyDockPosition(force: true);
+        _shownPosition = Position;
 
         // Static anchors must use the finalized window size, which SizeToContent
         // only produces after the first layout pass. Re-apply once layout settles
@@ -124,12 +142,87 @@ public partial class MainWindow : Window
         if (!force && _appServices.PositioningService.IsDynamicPositioning()) return;
         var (x, y) = _appServices.PositioningService.ResolvePosition(Width, Height);
         Position = new PixelPoint((int)x, (int)y);
+        _shownPosition = Position;
+        _isAutoHidden = false;
     }
 
     private void OnDockSizeChanged(object? sender, SizeChangedEventArgs e)
     {
         if (_appServices?.PositioningService.IsDynamicPositioning() == false)
             ApplyDockPosition();
+    }
+
+    private void OnDockPointerEntered(object? sender, PointerEventArgs e)
+    {
+        _autoHideDelay.Stop();
+        if (_isAutoHidden || _isAnimatingAutoHide)
+            StartAutoHideAnimation(_shownPosition, hiddenAtEnd: false);
+    }
+
+    private void OnDockPointerExited(object? sender, PointerEventArgs e)
+    {
+        if (_appServices?.AppearanceService.GetAutoHide() != true) return;
+        _autoHideDelay.Stop();
+        _autoHideDelay.Start();
+    }
+
+    private void HideDock()
+    {
+        if (_isAutoHidden || _appServices == null) return;
+        HidePreview();
+        _shownPosition = Position;
+        var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary;
+        if (screen == null) return;
+
+        var area = screen.Bounds;
+        int width = Math.Max(1, (int)Math.Round(Bounds.Width * RenderScaling));
+        int height = Math.Max(1, (int)Math.Round(Bounds.Height * RenderScaling));
+        int leftDistance = Math.Abs(Position.X - area.X);
+        int rightDistance = Math.Abs(area.Right - (Position.X + width));
+        int topDistance = Math.Abs(Position.Y - area.Y);
+        int bottomDistance = Math.Abs(area.Bottom - (Position.Y + height));
+        int nearest = Math.Min(Math.Min(leftDistance, rightDistance), Math.Min(topDistance, bottomDistance));
+
+        PixelPoint target = nearest == leftDistance
+            ? new PixelPoint(area.X - width + AutoHideRevealPixels, Position.Y)
+            : nearest == rightDistance
+                ? new PixelPoint(area.Right - AutoHideRevealPixels, Position.Y)
+                : nearest == topDistance
+                    ? new PixelPoint(Position.X, area.Y - height + AutoHideRevealPixels)
+                    : new PixelPoint(Position.X, area.Bottom - AutoHideRevealPixels);
+        StartAutoHideAnimation(target, hiddenAtEnd: true);
+    }
+
+    private void StartAutoHideAnimation(PixelPoint target, bool hiddenAtEnd)
+    {
+        _autoHideAnimation.Stop();
+        _animationStart = Position;
+        _animationTarget = target;
+        _animationStarted = DateTime.UtcNow;
+        _isAnimatingAutoHide = true;
+        _isAutoHidden = hiddenAtEnd;
+        _autoHideAnimation.Start();
+    }
+
+    private void AnimateAutoHide()
+    {
+        double progress = Math.Clamp(
+            (DateTime.UtcNow - _animationStarted).TotalMilliseconds / AutoHideAnimationMilliseconds, 0, 1);
+        double eased = 1 - Math.Pow(1 - progress, 3);
+        Position = new PixelPoint(
+            (int)Math.Round(_animationStart.X + ((_animationTarget.X - _animationStart.X) * eased)),
+            (int)Math.Round(_animationStart.Y + ((_animationTarget.Y - _animationStart.Y) * eased)));
+        if (progress < 1) return;
+        _autoHideAnimation.Stop();
+        _isAnimatingAutoHide = false;
+    }
+
+    private void OnAutoHideSettingChanged()
+    {
+        if (_appServices?.AppearanceService.GetAutoHide() == true) return;
+        _autoHideDelay.Stop();
+        if (_isAutoHidden || _isAnimatingAutoHide)
+            StartAutoHideAnimation(_shownPosition, hiddenAtEnd: false);
     }
 
     private void OnItemPointerEntered(object? sender, PointerEventArgs e)
@@ -404,6 +497,7 @@ public partial class MainWindow : Window
     {
         if (_appServices == null) return;
         if (!_appServices.PositioningService.IsDynamicPositioning()) return;
+        if (_isAnimatingAutoHide || _isAutoHidden) return;
         _positionPersistTimer.Stop();
         _positionPersistTimer.Start();
     }
@@ -428,7 +522,7 @@ public partial class MainWindow : Window
         SettingsWindow.Open(
             _appServices,
             this,
-            dockRefreshAction: vm.UpdateDockUI,
+            dockRefreshAction: () => { vm.UpdateDockUI(); OnAutoHideSettingChanged(); },
             positioningModeChangeAction: mode => HandlePositioningModeChange(mode)
         );
     }
@@ -449,6 +543,8 @@ public partial class MainWindow : Window
     {
         PositionChanged -= OnDockPositionChanged;
         _positionPersistTimer.Stop();
+        _autoHideDelay.Stop();
+        _autoHideAnimation.Stop();
         HidePreview();
         if (DataContext is MainWindowViewModel vm)
             vm.Shutdown();

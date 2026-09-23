@@ -211,6 +211,7 @@ public partial class SettingsViewModel : ViewModelBase
     public string StartWithWindowsText => T("settings.general.startWithWindows");
     public string ShowUnpinnedRunningAppsText => T("settings.general.showUnpinnedRunningApps");
     public string ArrangeVerticalText => T("settings.general.arrangeVertical");
+    public string AutoHideText => T("settings.general.autoHide");
     public string CustomColorText => T("settings.customColor");
 
     private bool _isAutoStartEnabled;
@@ -232,6 +233,13 @@ public partial class SettingsViewModel : ViewModelBase
     {
         get => _isVerticalDock;
         set => SetProperty(ref _isVerticalDock, value);
+    }
+
+    private bool _autoHide;
+    public bool AutoHide
+    {
+        get => _autoHide;
+        set => SetProperty(ref _autoHide, value);
     }
 
     public SettingsViewModel(AppServices appServices, Action dockRefreshAction,
@@ -271,6 +279,7 @@ public partial class SettingsViewModel : ViewModelBase
         IsAutoStartEnabled = Infrastructure.Windows.Adapters.AutoStartHelper.IsAutoStartEnabled();
         ShowUnpinnedRunningApps = app.GetShowUnpinnedRunningApps();
         IsVerticalDock = app.GetVerticalDock();
+        AutoHide = app.GetAutoHide();
         _isInitialized = true;
     }
 
@@ -293,6 +302,7 @@ public partial class SettingsViewModel : ViewModelBase
             case nameof(IsAutoStartEnabled): OnAutoStartChanged(); break;
             case nameof(ShowUnpinnedRunningApps): OnShowUnpinnedRunningAppsChanged(); break;
             case nameof(IsVerticalDock): OnVerticalDockChanged(); break;
+            case nameof(AutoHide): OnAutoHideChanged(); break;
             case nameof(IsStaticMode): OnPositioningModeChanged(); break;
             case nameof(VerticalAnchor): OnVerticalAnchorChanged(); break;
             case nameof(HorizontalAnchor): OnHorizontalAnchorChanged(); break;
@@ -343,6 +353,11 @@ public partial class SettingsViewModel : ViewModelBase
     public void OnVerticalDockChanged()
     {
         _appServices.AppearanceService.SetVerticalDock(IsVerticalDock);
+        _dockRefreshAction();
+    }
+    public void OnAutoHideChanged()
+    {
+        _appServices.AppearanceService.SetAutoHide(AutoHide);
         _dockRefreshAction();
     }
     public void OnPositioningModeChanged()
